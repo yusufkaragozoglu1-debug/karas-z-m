@@ -1,7 +1,5 @@
-{% if messages %}
-<div class="container messages" role="status" aria-live="polite">
+<div class="toasts" id="toasts" role="status" aria-live="polite">
   {% for message in messages %}
   <div class="message message--{{ message.tags|default:'info' }}">{{ message }}</div>
   {% endfor %}
 </div>
-{% endif %}

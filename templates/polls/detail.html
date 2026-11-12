@@ -29,6 +29,10 @@
     </form>
   {% endif %}
 
+  <p class="share">
+    <button type="button" class="btn btn--ghost btn--small" data-copy-url="{{ request.build_absolute_uri }}" hidden>Linki kopyala</button>
+  </p>
+
   {% if is_author %}
     <div class="owner-actions">
       {% if not poll.is_closed %}

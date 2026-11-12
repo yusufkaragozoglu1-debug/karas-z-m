@@ -1,7 +1,14 @@
+{% load static %}
 <header class="navbar">
   <div class="container navbar__inner">
-    <a class="navbar__brand" href="{% url 'poll_list' %}">🤔 Kararsızım</a>
-    <nav class="navbar__links" aria-label="Ana menü">
+    <a class="navbar__brand" href="{% url 'poll_list' %}">
+      <img src="{% static 'img/logo.svg' %}" alt="" width="32" height="32">
+      <span>Kararsızım</span>
+    </a>
+    <button type="button" class="navbar__toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Menüyü aç/kapat">
+      <span aria-hidden="true">☰</span>
+    </button>
+    <nav class="navbar__links" id="nav-links" aria-label="Ana menü">
       {% if user.is_authenticated %}
         <a class="navbar__link" href="{% url 'poll_create' %}">Anket oluştur</a>
         <a class="navbar__link" href="{% url 'my_polls' %}">Anketlerim</a>

@@ -11,7 +11,7 @@
           </span>
         </div>
         <div class="result__bar" role="img" aria-label="{{ r.text }}: %{{ r.percent }}">
-          <div class="result__fill" style="width: {{ r.percent }}%"></div>
+          <div class="result__fill" data-percent="{{ r.percent }}" style="width: {{ r.percent }}%"></div>
         </div>
         <div class="result__numbers"><strong>%{{ r.percent }}</strong> · {{ r.votes }} oy</div>
       </li>

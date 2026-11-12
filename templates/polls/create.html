@@ -5,10 +5,16 @@
 {% block content %}
 <section class="card auth">
   <h1>Yeni anket 🗳️</h1>
-  <form method="post" novalidate>
+  <form method="post" novalidate class="poll-form">
     {% csrf_token %}
     {% for error in form.non_field_errors %}<p class="field__error" role="alert">{{ error }}</p>{% endfor %}
-    {% for field in form %}{% include "partials/_form_field.html" %}{% endfor %}
+    {% for field in form %}
+      {% if "option_" in field.name %}
+        <div class="option-field" data-option-field>{% include "partials/_form_field.html" %}</div>
+      {% else %}
+        {% include "partials/_form_field.html" %}
+      {% endif %}
+    {% endfor %}
     <p class="field__help">En az 2, en fazla 5 seçenek yazabilirsin.</p>
     <button type="submit" class="btn btn--primary btn--block">Yayınla</button>
   </form>
