@@ -109,7 +109,7 @@ Bitiş süresi + geri sayım, liste filtreleri (yeni/popüler/kapanmak üzere), 
 ## 13. Aşama durumu
 - [x] Aşama 1 — İskelet, ayarlar, User, temel şablon
 - [x] Aşama 2 — Kayıt, giriş, çıkış
-- [ ] Aşama 3 — Anket oluşturma, liste, detay
+- [x] Aşama 3 — Anket oluşturma, liste, detay
 - [ ] Aşama 4 — Oylama, sonuçlar, anketlerim, kapat/sil
 - [ ] Aşama 5 — Arayüz cilası ve JS
 - [ ] Aşama 6 — Supabase + Vercel deploy
