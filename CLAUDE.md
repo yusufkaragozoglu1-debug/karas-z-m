@@ -145,5 +145,5 @@ Bitiş süresi + geri sayım, liste filtreleri (yeni/popüler/kapanmak üzere), 
 - [x] Aşama 3 — Anket oluşturma, liste, detay
 - [x] Aşama 4 — Oylama, sonuçlar, anketlerim, kapat/sil
 - [x] Aşama 5 — Arayüz cilası ve JS
-- [ ] Aşama 6 — Supabase + Vercel deploy
+- [x] Aşama 6 (kod/dokümantasyon tarafı; Supabase + Vercel hesap adımları kullanıcıda) — Supabase + Vercel deploy
 - [ ] Aşama 7 — Son kontrol ve temizlik

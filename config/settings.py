@@ -88,8 +88,12 @@ if _database_url:
         "default": dj_database_url.parse(_database_url, conn_max_age=0, ssl_require=True)
     }
     DATABASES["default"]["CONN_MAX_AGE"] = 0
+    # Supabase's transaction pooler (port 6543) cannot keep server-side cursors
+    # or prepared statements across transactions.
     DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
-    DATABASES["default"].setdefault("OPTIONS", {})["sslmode"] = "require"
+    _db_options = DATABASES["default"].setdefault("OPTIONS", {})
+    _db_options["sslmode"] = "require"
+    _db_options["prepare_threshold"] = None
 else:
     DATABASES = {
         "default": {
@@ -124,10 +128,13 @@ STORAGES = {
         "BACKEND": (
             "django.contrib.staticfiles.storage.StaticFilesStorage"
             if DEBUG
-            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            else "whitenoise.storage.CompressedStaticFilesStorage"
         )
     },
 }
+# Serve straight from static/ if `collectstatic` was not run at build time, so a
+# missing build step can never take the site down (no hashed-manifest lookups).
+WHITENOISE_USE_FINDERS = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
