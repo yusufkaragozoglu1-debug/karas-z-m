@@ -1,5 +1,17 @@
 <header class="navbar">
   <div class="container navbar__inner">
     <a class="navbar__brand" href="{% url 'poll_list' %}">🤔 Kararsızım</a>
+    <nav class="navbar__links" aria-label="Ana menü">
+      {% if user.is_authenticated %}
+        <span class="navbar__user">@{{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" class="navbar__form">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--ghost btn--small">Çıkış</button>
+        </form>
+      {% else %}
+        <a class="btn btn--ghost btn--small" href="{% url 'login' %}">Giriş</a>
+        <a class="btn btn--primary btn--small" href="{% url 'signup' %}">Kayıt ol</a>
+      {% endif %}
+    </nav>
   </div>
 </header>

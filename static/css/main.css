@@ -98,3 +98,33 @@ main.container { padding-top: 1.5rem; padding-bottom: 3rem; }
 }
 .message--error { border-left-color: var(--danger); }
 .message--success { border-left-color: var(--opt-3); }
+
+/* Navbar links */
+.navbar__inner { justify-content: space-between; gap: 0.75rem; }
+.navbar__links { display: flex; align-items: center; gap: 0.5rem; }
+.navbar__user { font-weight: 800; color: var(--ink); }
+.navbar__form { margin: 0; }
+.btn--small { padding: 0.4rem 0.9rem; font-size: 0.9rem; border-radius: 12px; }
+.btn--small.btn--primary { box-shadow: 0 3px 0 var(--primary-dark); }
+.btn--block { display: block; width: 100%; }
+
+/* Forms */
+.auth h1 { text-align: center; }
+.field { margin-bottom: 1rem; }
+.field__label { display: block; font-weight: 700; margin-bottom: 0.3rem; }
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="password"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font: 600 1rem var(--font-body);
+  color: var(--ink);
+  background: #fffdf8;
+  border: 2px solid #e4dcf5;
+  border-radius: var(--radius);
+}
+.field input:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; border-color: var(--primary); }
+.field--error input { border-color: var(--danger); }
+.field__help { color: var(--ink-soft); font-size: 0.875rem; margin: 0.3rem 0 0; }
+.field__error { color: var(--danger-dark); font-weight: 700; font-size: 0.9rem; margin: 0.3rem 0 0; }
+.auth__alt { text-align: center; margin: 1.25rem 0 0; }
