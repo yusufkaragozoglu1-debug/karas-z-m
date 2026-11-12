@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser, UserManager
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.functions import Lower
@@ -59,8 +60,6 @@ class User(AbstractUser):
         super().validate_unique(exclude)
         if exclude and "username" in exclude:
             return
-        from django.core.exceptions import ValidationError
-
         clash = User.objects.filter(username__iexact=self.username).exclude(pk=self.pk)
         if clash.exists():
             raise ValidationError({"username": "Bu kullanıcı adı alınmış."})

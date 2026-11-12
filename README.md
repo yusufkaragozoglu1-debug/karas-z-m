@@ -2,6 +2,14 @@
 
 Topluluğa soru sor, oyları topla. Django tabanlı anket uygulaması. Şartname ve mimari notları: [CLAUDE.md](CLAUDE.md).
 
+## Ne yapar?
+
+- Üyeler 2–5 seçenekli anket oluşturur; anketler listede en yeni üstte görünür.
+- Ziyaretçiler ve üyeler oy verir (anket başına bir oy). Sonuçlar oy verdikten sonra, anket kapanınca veya yazara her zaman renkli çubuklarla görünür.
+- Yazar anketini kapatabilir veya silebilir; "Anketlerim" sayfasında kendi anketlerini ve oy sayılarını görür.
+- JavaScript kapalıyken de her şey çalışır; JS oylamayı sayfa yenilenmeden yapar, seçenek alanlarını dinamik açar, linki kopyalar.
+- Gizlilik: e-posta adresleri hiçbir sayfada veya JSON yanıtında başkalarına gösterilmez, yalnızca `@kullaniciadi` görünür.
+
 ## Yerel kurulum (Windows)
 
 ```powershell
@@ -110,4 +118,17 @@ Geriye kalan iki uyarı bilerek bırakıldı:
 ## Bilinen sınırlamalar
 
 - Ziyaretçi oyları tarayıcı çerezine bağlıdır; çerez silinirse (veya gizli pencerede) tekrar oy verilebilir.
+- Kayıt formu, "bu e-posta ile zaten bir hesap var" diyerek e-postanın kayıtlı olup olmadığını belli eder (kullanıcı listeleme/enumeration mümkün). Rate limit yok.
+- E-posta doğrulaması ve "parolamı unuttum" akışı yok.
+- Aynı ankette seçenek tekrarı ve 2–5 seçenek sınırı form katmanında denetlenir, veritabanı kısıtı değildir.
+- Yönetici paneli varsayılan `/admin/` adresindedir.
 - Yerelde Python 3.15, Vercel'de Python 3.12 kullanılır.
+- `manage.py test` her zaman yerel SQLite test veritabanı kullanır, `DATABASE_URL` tanımlı olsa bile canlı veritabanına dokunmaz.
+
+## Sonraki adımlar (öncelik sırasıyla)
+
+1. Rate limit ve basit captcha (kayıt, giriş ve oylama için spam koruması).
+2. E-posta doğrulama ve parola sıfırlama.
+3. Anket bitiş süresi ve geri sayım.
+4. Liste filtreleri: en yeni / en popüler / kapanmak üzere.
+5. Anket kategorileri, paylaşım için Open Graph önizleme görseli ve karanlık mod.

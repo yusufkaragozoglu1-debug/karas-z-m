@@ -13,9 +13,10 @@
   <script src="{% static 'js/main.js' %}" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#main">İçeriğe geç</a>
   {% include "partials/_navbar.html" %}
   {% include "partials/_messages.html" %}
-  <main class="container">
+  <main class="container" id="main" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
 </body>

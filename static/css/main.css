@@ -74,6 +74,14 @@ main.container { padding-top: 1.5rem; padding-bottom: 3rem; }
 }
 
 :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+main:focus { outline: none; }
+
+.skip-link {
+  position: absolute; left: 0.5rem; top: -4rem; z-index: 100;
+  background: var(--ink); color: #fff; font-weight: 800;
+  padding: 0.6rem 1rem; border-radius: 12px; text-decoration: none;
+}
+.skip-link:focus { top: 0.5rem; }
 
 /* ---- Navbar ------------------------------------------------------------ */
 .navbar { background: var(--surface); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 20; }
@@ -187,7 +195,8 @@ main.container { padding-top: 1.5rem; padding-bottom: 3rem; }
 }
 .field textarea { resize: vertical; }
 .field input:focus, .field textarea:focus {
-  outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(124, 77, 255, 0.25);
+  outline: 3px solid transparent; /* stays visible in forced-colors mode */
+  border-color: var(--primary); box-shadow: 0 0 0 4px rgba(124, 77, 255, 0.25);
 }
 .field--error input, .field--error textarea { border-color: var(--danger); }
 .field__help { color: var(--ink-soft); font-size: 0.875rem; margin: 0.3rem 0 0; }

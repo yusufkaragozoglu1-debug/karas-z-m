@@ -16,7 +16,7 @@ python manage.py test                            # tümü
 python manage.py test polls.tests.test_voting.JsonVoteTests.test_success_payload   # tek test
 ```
 
-Lint/format aracı yapılandırılmamış. `DJANGO_DEBUG` varsayılanı `False` (ve `DJANGO_SECRET_KEY` zorunlu); yerel `.env` (git'e girmez) `DJANGO_DEBUG=True` içerir. Testler sırasında "staticfiles dizini yok" uyarısı zararsızdır.
+`manage.py test` `DATABASE_URL` tanımlı olsa bile SQLite test veritabanı kullanır (settings.py'de korunuyor); diğer komutlar `.env.local`'deki canlı Supabase veritabanına bağlanır. Lint/format aracı yapılandırılmamış. `DJANGO_DEBUG` varsayılanı `False` (ve `DJANGO_SECRET_KEY` zorunlu); yerel `.env` (git'e girmez) `DJANGO_DEBUG=True` içerir. Testler sırasında "staticfiles dizini yok" uyarısı zararsızdır.
 
 ## Mimari (birden çok dosyayı okumayı gerektiren noktalar)
 
@@ -146,4 +146,4 @@ Bitiş süresi + geri sayım, liste filtreleri (yeni/popüler/kapanmak üzere), 
 - [x] Aşama 4 — Oylama, sonuçlar, anketlerim, kapat/sil
 - [x] Aşama 5 — Arayüz cilası ve JS
 - [x] Aşama 6 (kod/dokümantasyon tarafı; Supabase + Vercel hesap adımları kullanıcıda) — Supabase + Vercel deploy
-- [ ] Aşama 7 — Son kontrol ve temizlik
+- [x] Aşama 7 — Son kontrol ve temizlik

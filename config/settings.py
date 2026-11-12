@@ -1,6 +1,7 @@
 """Kararsizim Django settings (see CLAUDE.md section 9)."""
 
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
@@ -83,7 +84,8 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Database: SQLite locally, Postgres (Supabase) when DATABASE_URL is set.
 _database_url = os.environ.get("DATABASE_URL", "")
-if _database_url:
+# `manage.py test` always uses a local SQLite test database, never the live Postgres.
+if _database_url and "test" not in sys.argv[1:2]:
     DATABASES = {
         "default": dj_database_url.parse(_database_url, conn_max_age=0, ssl_require=True)
     }
