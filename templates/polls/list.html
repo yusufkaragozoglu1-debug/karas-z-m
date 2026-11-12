@@ -7,9 +7,9 @@
   <a class="btn btn--primary" href="{% url 'poll_create' %}">Anket oluştur</a>
 </section>
 
-{% if page.object_list %}
+{% if polls %}
 <section class="poll-list" aria-label="Anketler">
-  {% for poll in page.object_list %}
+  {% for poll in polls %}
     {% include "polls/partials/_poll_card.html" %}
   {% endfor %}
 </section>

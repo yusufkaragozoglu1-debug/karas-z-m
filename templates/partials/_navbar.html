@@ -4,6 +4,7 @@
     <nav class="navbar__links" aria-label="Ana menü">
       {% if user.is_authenticated %}
         <a class="navbar__link" href="{% url 'poll_create' %}">Anket oluştur</a>
+        <a class="navbar__link" href="{% url 'my_polls' %}">Anketlerim</a>
         <span class="navbar__user">@{{ user.username }}</span>
         <form method="post" action="{% url 'logout' %}" class="navbar__form">
           {% csrf_token %}

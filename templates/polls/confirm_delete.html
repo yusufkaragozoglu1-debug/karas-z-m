@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Anketi sil · Kararsızım{% endblock %}
+
+{% block content %}
+<section class="card auth">
+  <h1>Anketi silelim mi? 🗑️</h1>
+  <p>“{{ poll.question }}” anketi ve tüm oyları kalıcı olarak silinecek. Bu işlem geri alınamaz.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn--danger btn--block">Evet, sil</button>
+  </form>
+  <p class="auth__alt"><a href="{% url 'poll_detail' poll.pk %}">Vazgeç</a></p>
+</section>
+{% endblock %}

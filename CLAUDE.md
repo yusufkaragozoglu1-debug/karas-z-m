@@ -1,7 +1,40 @@
-# Kararsızım — Proje Şartnamesi (CLAUDE.md)
+# CLAUDE.md
 
-> TASLAK: `docs/Karasızım Porje.md` içindeki aşama promptlarından türetildi. Onaylanana kadar değiştirilebilir.
-> Aşama promptları bu dosyadaki bölüm numaralarına atıf yapar; numaraları değiştirme.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+Kararsızım: Django anket uygulaması (Türkçe arayüz, İngilizce kod). Aşama aşama geliştiriliyor; aşama promptları `docs/Karasızım Porje.md` içinde ve bu dosyadaki **bölüm numaralarına atıf yapar — numaraları değiştirme**. Aşama durumu bölüm 13'te.
+
+## Komutlar (Windows, proje kökünde)
+
+```powershell
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python manage.py runserver                       # yerelde .env içinde DJANGO_DEBUG=True olmalı
+python manage.py check
+python manage.py makemigrations --check --dry-run
+python manage.py test                            # tümü
+python manage.py test polls.tests.test_voting.JsonVoteTests.test_success_payload   # tek test
+```
+
+Lint/format aracı yapılandırılmamış. `DJANGO_DEBUG` varsayılanı `False` (ve `DJANGO_SECRET_KEY` zorunlu); yerel `.env` (git'e girmez) `DJANGO_DEBUG=True` içerir. Testler sırasında "staticfiles dizini yok" uyarısı zararsızdır.
+
+## Mimari (birden çok dosyayı okumayı gerektiren noktalar)
+
+- **Oy mantığı `polls/services.py` içinde**, view'larda değil. `cast_vote` sırayla kapalı → geçersiz seçenek → zaten oy verilmiş kontrolü yapar, `VoteError` alt sınıfları (`PollClosed` 403, `InvalidOption` 400, `AlreadyVoted` 409) hem mesajı hem HTTP kodunu taşır; `polls/views.py:poll_vote` bunları ya `messages`+redirect ya da JSON'a (`Accept: application/json`) çevirir. Race durumu `Vote` üzerindeki koşullu `UniqueConstraint`'ler + `IntegrityError` → `AlreadyVoted` ile çözülür.
+- **Oy kimliği**: üye oyu `user` ile, ziyaretçi oyu imzalı `kararsizim_voter` çerezindeki token ile (`polls/voter.py`) saklanır; ikisi aynı satırda tutulmaz. `has_voted`/`get_user_vote`/`voted_poll_ids` ikisini birden (`user` VEYA token) kontrol eder — ziyaretçi oy verip sonra giriş yaparsa tekrar oy veremez.
+- **Sonuç görünürlüğü** `poll_detail` içinde karar verilir: yazar, kapalı anket veya oy vermiş olan sonucu görür; diğerleri oy formunu görür (yazarın UI'dan oy vermesi bilinçli olarak yok). `get_results` tek sorguda `annotate` ile sayı/yüzde/`is_leading` üretir; aynı dict yapısı hem `_results.html` şablonuna hem JSON yanıtına gider (şema bölüm 8).
+- **N+1 yasağı**: liste/anketlerim `Poll` sorgusunu `_annotated_polls()` ile paylaşır; sayfadaki "oy verdin" bilgisi tek sorguyla gelir. `assertNumQueries` benzeri testler (anket sayısı artınca sorgu sayısı sabit) var — yeni sorgu eklerken bozma.
+- **Kullanıcı**: `accounts.User` e-posta ile girer (`USERNAME_FIELD="email"`), e-posta `save()` ve manager'da küçük harfe çevrilir, kullanıcı adı `Lower("username")` kısıtıyla iexact benzersizdir. E-posta hiçbir şablonda/JSON'da gösterilmez (testle korunuyor).
+- **Ayarlar** (`config/settings.py`): `.env` sonra `.env.local` yüklenir; `DATABASE_URL` yoksa SQLite, varsa Postgres (`CONN_MAX_AGE=0`, server-side cursor kapalı, `sslmode=require`). Üretim güvenlik ayarları `DEBUG=False` iken devreye girer; `VOTER_COOKIE_SECURE = not DEBUG`.
+- **Frontend**: tek `static/css/main.css` ve `static/js/main.js`, framework yok. JS yalnızca ilerleyen geliştirme (Aşama 5); JS kapalıyken her akış çalışmalı. Metinler `textContent` ile basılır.
+- Python yerelde 3.15, Vercel'de 3.12 hedefleniyor; her iki sürümde çalışan bağımlılıklar seç.
+- Git deposunun kökü proje değil `C:\Users\ASUS` (ana dizin): commit atarken yalnızca `Kararsizim` klasörünü stage'le (`git add .` bu klasörde).
+
+---
+
+# Proje Şartnamesi
+
+> `docs/Karasızım Porje.md` içindeki aşama promptlarından türetildi.
 
 ## 1. Amaç
 "Kararsız mı kaldın? Topluluğa sor!" Herkes 2–5 seçenekli anket açar, ziyaretçiler ve üyeler oy verir, sonuçlar canlı görünür. Prototip; sade, hızlı, mobil öncelikli.
@@ -110,7 +143,7 @@ Bitiş süresi + geri sayım, liste filtreleri (yeni/popüler/kapanmak üzere), 
 - [x] Aşama 1 — İskelet, ayarlar, User, temel şablon
 - [x] Aşama 2 — Kayıt, giriş, çıkış
 - [x] Aşama 3 — Anket oluşturma, liste, detay
-- [ ] Aşama 4 — Oylama, sonuçlar, anketlerim, kapat/sil
+- [x] Aşama 4 — Oylama, sonuçlar, anketlerim, kapat/sil
 - [ ] Aşama 5 — Arayüz cilası ve JS
 - [ ] Aşama 6 — Supabase + Vercel deploy
 - [ ] Aşama 7 — Son kontrol ve temizlik

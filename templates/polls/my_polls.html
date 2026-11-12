@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Anketlerim · Kararsızım{% endblock %}
+
+{% block content %}
+<h1>Anketlerim</h1>
+{% if polls %}
+<section class="poll-list" aria-label="Anketlerim">
+  {% for poll in polls %}
+    {% include "polls/partials/_poll_card.html" with show_status=True %}
+  {% endfor %}
+</section>
+{% else %}
+<section class="card empty">
+  <p class="empty__emoji">📭</p>
+  <h2>Henüz anketin yok</h2>
+  <p>Kararsız kaldığın bir şey varsa topluluğa sor.</p>
+  <a class="btn btn--primary" href="{% url 'poll_create' %}">Anket oluştur</a>
+</section>
+{% endif %}
+{% endblock %}
