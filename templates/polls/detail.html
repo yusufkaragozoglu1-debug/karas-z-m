@@ -13,7 +13,10 @@
 
   {% if show_results %}
     {% include "polls/partials/_results.html" %}
-  {% else %}
+  {% endif %}
+
+  {% if show_form %}
+    {% if show_results %}<h2 class="vote-title">Sen de oy ver 🗳️</h2>{% endif %}
     <form method="post" action="{% url 'poll_vote' poll.pk %}" class="vote-form">
       {% csrf_token %}
       <fieldset class="options">

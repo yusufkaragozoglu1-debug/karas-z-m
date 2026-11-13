@@ -299,6 +299,7 @@ label.option:has(input:focus-visible) { outline: 3px solid var(--ink); outline-o
 .results__total { color: var(--ink-soft); font-size: 0.9rem; text-align: right; margin: 0; }
 .results:focus { outline: none; }
 
+.vote-title { margin: 1.25rem 0 0; font-size: 1.15rem; }
 .share { margin: 0.5rem 0; }
 .owner-actions { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin: 1rem 0; }
 .owner-actions form { margin: 0; }

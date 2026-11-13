@@ -317,3 +317,39 @@ class MyPollsAndBadgesTests(BaseVotingTest):
         with CaptureQueriesContext(connection) as many:
             self.client.get(reverse("my_polls"))
         self.assertEqual(len(few), len(many))
+
+
+class AuthorVotingTests(BaseVotingTest):
+    def test_author_sees_results_and_vote_form(self):
+        self.client.force_login(self.author)
+        response = self.client.get(self.detail_url)
+        self.assertTrue(response.context["show_results"])
+        self.assertTrue(response.context["show_form"])
+        self.assertContains(response, "Henüz oy yok")
+        self.assertContains(response, "Oyumu ver")
+        self.assertContains(response, "Sen de oy ver")
+
+    def test_author_can_vote_once_and_form_disappears(self):
+        self.client.force_login(self.author)
+        self.client.post(self.vote_url, {"option": self.a.pk})
+        self.assertEqual(Vote.objects.get().user, self.author)
+        response = self.client.get(self.detail_url)
+        self.assertFalse(response.context["show_form"])
+        self.assertContains(response, "Senin seçimin ✓")
+        self.assertNotContains(response, "Oyumu ver")
+        self.client.post(self.vote_url, {"option": self.b.pk})
+        self.assertEqual(Vote.objects.count(), 1)
+
+    def test_author_cannot_vote_in_closed_poll(self):
+        self.poll.is_closed = True
+        self.poll.save()
+        self.client.force_login(self.author)
+        self.assertFalse(self.client.get(self.detail_url).context["show_form"])
+        self.client.post(self.vote_url, {"option": self.a.pk})
+        self.assertEqual(Vote.objects.count(), 0)
+
+    def test_visitor_view_unchanged(self):
+        response = self.client.get(self.detail_url)
+        self.assertFalse(response.context["show_results"])
+        self.assertTrue(response.context["show_form"])
+        self.assertNotContains(response, "Sen de oy ver")

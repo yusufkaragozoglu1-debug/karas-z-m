@@ -39,12 +39,21 @@ def poll_detail(request, pk):
     token = voter.get_voter_token(request)
     is_author = request.user.is_authenticated and poll.author_id == request.user.pk
     my_vote = services.get_user_vote(poll, request.user, token)
+    # The author always sees the results; everyone (author included) can still vote
+    # while the poll is open and they have not voted yet.
     show_results = is_author or poll.is_closed or my_vote is not None
+    show_form = not poll.is_closed and my_vote is None
 
-    context = {"poll": poll, "is_author": is_author, "show_results": show_results, "my_vote": my_vote}
+    context = {
+        "poll": poll,
+        "is_author": is_author,
+        "show_results": show_results,
+        "show_form": show_form,
+        "my_vote": my_vote,
+    }
     if show_results:
         context.update(services.get_results(poll, my_option_id=my_vote.option_id if my_vote else None))
-    else:
+    if show_form:
         context["options"] = poll.options.all()
     return render(request, "polls/detail.html", context)
 

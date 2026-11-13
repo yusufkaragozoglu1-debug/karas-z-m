@@ -22,7 +22,7 @@ python manage.py test polls.tests.test_voting.JsonVoteTests.test_success_payload
 
 - **Oy mantığı `polls/services.py` içinde**, view'larda değil. `cast_vote` sırayla kapalı → geçersiz seçenek → zaten oy verilmiş kontrolü yapar, `VoteError` alt sınıfları (`PollClosed` 403, `InvalidOption` 400, `AlreadyVoted` 409) hem mesajı hem HTTP kodunu taşır; `polls/views.py:poll_vote` bunları ya `messages`+redirect ya da JSON'a (`Accept: application/json`) çevirir. Race durumu `Vote` üzerindeki koşullu `UniqueConstraint`'ler + `IntegrityError` → `AlreadyVoted` ile çözülür.
 - **Oy kimliği**: üye oyu `user` ile, ziyaretçi oyu imzalı `kararsizim_voter` çerezindeki token ile (`polls/voter.py`) saklanır; ikisi aynı satırda tutulmaz. `has_voted`/`get_user_vote`/`voted_poll_ids` ikisini birden (`user` VEYA token) kontrol eder — ziyaretçi oy verip sonra giriş yaparsa tekrar oy veremez.
-- **Sonuç görünürlüğü** `poll_detail` içinde karar verilir: yazar, kapalı anket veya oy vermiş olan sonucu görür; diğerleri oy formunu görür (yazarın UI'dan oy vermesi bilinçli olarak yok). `get_results` tek sorguda `annotate` ile sayı/yüzde/`is_leading` üretir; aynı dict yapısı hem `_results.html` şablonuna hem JSON yanıtına gider (şema bölüm 8).
+- **Sonuç görünürlüğü** `poll_detail` içinde karar verilir: yazar, kapalı anket veya oy vermiş olan sonucu görür; oy formu ise anket açıkken ve kullanıcı oy vermemişken herkese (yazar dahil) gösterilir — yazar sonuçların altında "Sen de oy ver" formunu görür. `get_results` tek sorguda `annotate` ile sayı/yüzde/`is_leading` üretir; aynı dict yapısı hem `_results.html` şablonuna hem JSON yanıtına gider (şema bölüm 8).
 - **N+1 yasağı**: liste/anketlerim `Poll` sorgusunu `_annotated_polls()` ile paylaşır; sayfadaki "oy verdin" bilgisi tek sorguyla gelir. `assertNumQueries` benzeri testler (anket sayısı artınca sorgu sayısı sabit) var — yeni sorgu eklerken bozma.
 - **Kullanıcı**: `accounts.User` e-posta ile girer (`USERNAME_FIELD="email"`), e-posta `save()` ve manager'da küçük harfe çevrilir, kullanıcı adı `Lower("username")` kısıtıyla iexact benzersizdir. E-posta hiçbir şablonda/JSON'da gösterilmez (testle korunuyor).
 - **Ayarlar** (`config/settings.py`): `.env` sonra `.env.local` yüklenir; `DATABASE_URL` yoksa SQLite, varsa Postgres (`CONN_MAX_AGE=0`, server-side cursor kapalı, `sslmode=require`). Üretim güvenlik ayarları `DEBUG=False` iken devreye girer; `VOTER_COOKIE_SECURE = not DEBUG`.
@@ -90,7 +90,7 @@ Ziyaretçi kimliği: imzalı çerez `kararsizim_voter` (rastgele uuid4 hex, `dja
 4. `transaction.atomic()` içinde Vote oluştur (user varsa user, yoksa voter_token).
 5. `IntegrityError` → `AlreadyVoted`.
 
-Sonuç görünürlüğü: yalnızca oy vermiş, anketin yazarı olan veya anket kapalıysa herkes görür. Aksi halde oy formu gösterilir.
+Sonuç görünürlüğü: yalnızca oy vermiş, anketin yazarı olan veya anket kapalıysa herkes görür. Oy formu, anket açıkken ve kullanıcı oy vermemişken (yazar dahil) gösterilir.
 `get_results`: seçenek başına oy sayısı, tam sayı yüzde (yuvarlama: 2/3→67, 1/3→33), `is_leading` (eşitlikte birden fazla), toplam oy; tek sorgu (annotate).
 Bilinen sınır: çerez silinirse ziyaretçi tekrar oy verebilir.
 

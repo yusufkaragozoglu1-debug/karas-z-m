@@ -148,7 +148,16 @@
         if (!data.ok) throw new Error("rejected");
 
         const results = buildResults(data);
-        form.replaceWith(results);
+        // The author already has a results block above the form: swap it, drop the form.
+        const existing = $(".results");
+        if (existing) {
+          existing.replaceWith(results);
+          form.remove();
+          const title = $(".vote-title");
+          if (title) title.remove();
+        } else {
+          form.replaceWith(results);
+        }
         animateBars(results);
         results.focus({ preventScroll: true });
         showToast(data.message, "success");
