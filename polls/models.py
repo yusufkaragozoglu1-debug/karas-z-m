@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 
 class Poll(models.Model):
@@ -8,10 +9,20 @@ class Poll(models.Model):
     question = models.CharField("soru", max_length=200)
     description = models.CharField("açıklama", max_length=500, blank=True)
     is_closed = models.BooleanField("kapalı", default=False)
+    closes_at = models.DateTimeField("kapanış zamanı", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at", "-id"]
+
+    @property
+    def has_expired(self):
+        return self.closes_at is not None and self.closes_at <= timezone.now()
+
+    @property
+    def is_finished(self):
+        """Closed by the author or past its closing time: no more votes, results public."""
+        return self.is_closed or self.has_expired
 
     def __str__(self):
         return self.question

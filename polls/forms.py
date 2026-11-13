@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 from django import forms
 from django.db import transaction
+from django.utils import timezone
 
 from .models import Option, Poll
 
@@ -7,8 +10,24 @@ MAX_OPTIONS = 5
 MIN_OPTIONS = 2
 OPTION_FIELDS = [f"option_{i}" for i in range(1, MAX_OPTIONS + 1)]
 
+# value (hours; "" = no limit) -> label
+DURATION_CHOICES = [
+    ("", "Süresiz"),
+    ("1", "1 saat"),
+    ("24", "24 saat"),
+    ("72", "3 gün"),
+    ("168", "7 gün"),
+]
+
 
 class PollCreateForm(forms.ModelForm):
+    duration = forms.ChoiceField(
+        label="Ne kadar açık kalsın?",
+        choices=DURATION_CHOICES,
+        required=False,
+        error_messages={"invalid_choice": "Geçerli bir süre seç."},
+    )
+
     class Meta:
         model = Poll
         fields = ("question", "description")
@@ -74,6 +93,9 @@ class PollCreateForm(forms.ModelForm):
     def save(self, author):
         poll = super().save(commit=False)
         poll.author = author
+        hours = self.cleaned_data.get("duration")
+        if hours:
+            poll.closes_at = timezone.now() + timedelta(hours=int(hours))
         poll.save()
         Option.objects.bulk_create(
             [Option(poll=poll, text=text, order=index) for index, text in enumerate(self.get_options())]

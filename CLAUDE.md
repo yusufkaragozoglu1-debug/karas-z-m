@@ -69,7 +69,7 @@ requirements.txt, .env.example, .gitignore, README.md, CLAUDE.md
 - E-posta hiçbir sayfada/JSON'da başka kullanıcıya gösterilmez.
 
 ### 5.2 polls.Poll
-`author` (FK User, CASCADE, related_name="polls"), `question` (max 200), `description` (max 500, boş olabilir), `is_closed` (bool, False), `created_at` (auto_now_add). Sıralama: `-created_at`.
+`author` (FK User, CASCADE, related_name="polls"), `question` (max 200), `description` (max 500, boş olabilir), `is_closed` (bool, False; yazar kapatınca), `closes_at` (datetime, null; süreli anket), `created_at` (auto_now_add). Sıralama: `-created_at`. `Poll.is_finished` = `is_closed` VEYA süresi dolmuş (`has_expired`); oy, sonuç görünürlüğü ve rozetler **her zaman `is_finished`** üzerinden karar verir, `is_closed` alanına doğrudan bakma. Oluşturma formundaki `duration` seçimi (Süresiz/1 sa/24 sa/3 gün/7 gün) `closes_at`'i ayarlar.
 
 ### 5.3 polls.Option
 `poll` (FK, related_name="options", CASCADE), `text` (max 80), `order` (0–4). Sıralama: `order`. Poll başına 2–5 seçenek. Aynı ankette seçenek metni iexact tekrar edemez.
@@ -84,7 +84,7 @@ requirements.txt, .env.example, .gitignore, README.md, CLAUDE.md
 Ziyaretçi kimliği: imzalı çerez `kararsizim_voter` (rastgele uuid4 hex, `django.core.signing`, 1 yıl, HttpOnly, SameSite=Lax, üretimde Secure). Yoksa üretilir, yanıta yazılır.
 
 `cast_vote(poll, option_id, user, voter_token)`:
-1. Anket kapalıysa → `PollClosed`.
+1. Anket kapalıysa veya süresi dolmuşsa (`poll.is_finished`) → `PollClosed`.
 2. `option_id`, bu ankete ait bir seçenek değilse → `InvalidOption`.
 3. `has_voted` ise → `AlreadyVoted`.
 4. `transaction.atomic()` içinde Vote oluştur (user varsa user, yoksa voter_token).
@@ -138,7 +138,7 @@ Vercel Django zero-config (manage.py kökte, WSGI_APPLICATION doğru, STATIC_ROO
 Django `TestCase`; her aşamada `makemigrations`, `migrate`, `check`, `test` temiz. Liste/detay/anketlerim için `assertNumQueries` (N+1 yok). Gizlilik testi: e-posta yanıtlarda yok.
 
 ## 12. Sonraki adımlar (prototip sonrası)
-Bitiş süresi + geri sayım, liste filtreleri (yeni/popüler/kapanmak üzere), captcha, e-posta doğrulama + parola sıfırlama, kategoriler, Open Graph önizleme, karanlık mod.
+Liste filtreleri (yeni/popüler/kapanmak üzere), captcha, e-posta doğrulama + parola sıfırlama, kategoriler, Open Graph önizleme, karanlık mod.
 
 ## 13. Aşama durumu
 - [x] Aşama 1 — İskelet, ayarlar, User, temel şablon

@@ -7,7 +7,7 @@
   <p class="poll-card__stats">
     <span class="badge">{{ poll.option_count }} seçenek</span>
     <span class="badge">{{ poll.total_votes }} oy</span>
-    {% if poll.is_closed %}<span class="badge badge--closed">Kapalı 🔒</span>{% elif show_status %}<span class="badge badge--open">Açık</span>{% endif %}
+    {% if poll.is_finished %}<span class="badge badge--closed">Kapalı 🔒</span>{% elif poll.closes_at %}<span class="badge badge--time">⏳ {{ poll.closes_at|timeuntil }} kaldı</span>{% if show_status %}<span class="badge badge--open">Açık</span>{% endif %}{% elif show_status %}<span class="badge badge--open">Açık</span>{% endif %}
     {% if poll.has_voted %}<span class="badge badge--mine">Oy verdin ✓</span>{% endif %}
   </p>
 </article>

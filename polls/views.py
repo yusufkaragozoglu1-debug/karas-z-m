@@ -41,8 +41,9 @@ def poll_detail(request, pk):
     my_vote = services.get_user_vote(poll, request.user, token)
     # The author always sees the results; everyone (author included) can still vote
     # while the poll is open and they have not voted yet.
-    show_results = is_author or poll.is_closed or my_vote is not None
-    show_form = not poll.is_closed and my_vote is None
+    finished = poll.is_finished
+    show_results = is_author or finished or my_vote is not None
+    show_form = not finished and my_vote is None
 
     context = {
         "poll": poll,
@@ -110,7 +111,7 @@ def poll_vote(request, pk):
 @require_POST
 def poll_close(request, pk):
     poll = get_object_or_404(Poll, pk=pk, author=request.user)
-    if not poll.is_closed:
+    if not poll.is_finished:
         poll.is_closed = True
         poll.save(update_fields=["is_closed"])
     messages.success(request, "Anket kapatıldı. 🔒")

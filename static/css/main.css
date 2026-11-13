@@ -299,6 +299,15 @@ label.option:has(input:focus-visible) { outline: 3px solid var(--ink); outline-o
 .results__total { color: var(--ink-soft); font-size: 0.9rem; text-align: right; margin: 0; }
 .results:focus { outline: none; }
 
+.badge--time { background: #fff1b8; color: #5c4600; }
+.countdown { background: var(--tint-5); border-radius: var(--radius); padding: 0.6rem 1rem; font-weight: 700; margin: 0 0 1rem; }
+.countdown--over { background: #ececf2; }
+.countdown__date { color: var(--ink-soft); font-weight: 600; font-size: 0.9rem; }
+.field select {
+  width: 100%; padding: 0.8rem 1rem; font: 600 1rem var(--font-body); color: var(--ink);
+  background: #fffdf8; border: 2px solid #e4dcf5; border-radius: var(--radius);
+}
+.field select:focus { outline: 3px solid transparent; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(124, 77, 255, 0.25); }
 .vote-title { margin: 1.25rem 0 0; font-size: 1.15rem; }
 .share { margin: 0.5rem 0; }
 .owner-actions { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin: 1rem 0; }

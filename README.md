@@ -6,6 +6,7 @@ Topluluğa soru sor, oyları topla. Django tabanlı anket uygulaması. Şartname
 
 - Üyeler 2–5 seçenekli anket oluşturur; anketler listede en yeni üstte görünür.
 - Ziyaretçiler ve üyeler oy verir (anket başına bir oy). Sonuçlar oy verdikten sonra, anket kapanınca veya yazara her zaman renkli çubuklarla görünür.
+- Anket açılırken süre seçilebilir (süresiz, 1 saat, 24 saat, 3 gün, 7 gün). Süreli ankette geri sayım görünür; süre dolunca oylama durur ve sonuçlar herkese açılır.
 - Yazar anketini kapatabilir veya silebilir; "Anketlerim" sayfasında kendi anketlerini ve oy sayılarını görür.
 - JavaScript kapalıyken de her şey çalışır; JS oylamayı sayfa yenilenmeden yapar, seçenek alanlarını dinamik açar, linki kopyalar.
 - Gizlilik: e-posta adresleri hiçbir sayfada veya JSON yanıtında başkalarına gösterilmez, yalnızca `@kullaniciadi` görünür.
@@ -132,6 +133,7 @@ Geriye kalan iki uyarı bilerek bırakıldı:
 - Rate limit sabit pencerelidir ve sayaçlar atomik değildir (aynı anda gelen çok sayıda istek limiti birkaç adet aşabilir). Captcha yoktur; yalnızca kayıt formunda gizli bir honeypot alanı vardır.
 - E-posta doğrulaması ve "parolamı unuttum" akışı yok.
 - Aynı ankette seçenek tekrarı ve 2–5 seçenek sınırı form katmanında denetlenir, veritabanı kısıtı değildir.
+- Süre dolduğunda ankette bir şey "çalışmaz"; kapalı olma durumu her istekte saatten hesaplanır. Tarayıcı saati yanlışsa geri sayım sapabilir, ama oy kabulü her zaman sunucu saatine göre karar verilir.
 - Yönetici paneli varsayılan `/admin/` adresindedir.
 - Yerelde Python 3.15, Vercel'de Python 3.12 kullanılır.
 - `manage.py test` her zaman yerel SQLite test veritabanı kullanır, `DATABASE_URL` tanımlı olsa bile canlı veritabanına dokunmaz.
@@ -140,6 +142,6 @@ Geriye kalan iki uyarı bilerek bırakıldı:
 
 1. Captcha (Cloudflare Turnstile veya hCaptcha) ve proxy arkasında IP doğrulamasının güçlendirilmesi.
 2. E-posta doğrulama ve parola sıfırlama.
-3. Anket bitiş süresi ve geri sayım.
-4. Liste filtreleri: en yeni / en popüler / kapanmak üzere.
+3. Liste filtreleri: en yeni / en popüler / kapanmak üzere.
+4. Süreyi sonradan uzatma ve süre dolmak üzereyken bildirim.
 5. Anket kategorileri, paylaşım için Open Graph önizleme görseli ve karanlık mod.

@@ -10,7 +10,7 @@ class OptionInline(admin.TabularInline):
 
 @admin.register(Poll)
 class PollAdmin(admin.ModelAdmin):
-    list_display = ("question", "author", "is_closed", "created_at")
+    list_display = ("question", "author", "is_closed", "closes_at", "created_at")
     list_filter = ("is_closed",)
     search_fields = ("question", "author__username")
     inlines = [OptionInline]

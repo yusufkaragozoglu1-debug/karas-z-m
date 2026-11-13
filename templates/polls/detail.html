@@ -4,12 +4,21 @@
 
 {% block content %}
 <article class="card poll-detail">
-  <h1>{{ poll.question }}{% if poll.is_closed %} <span class="badge badge--closed">Kapalı 🔒</span>{% endif %}</h1>
+  <h1>{{ poll.question }}{% if poll.is_finished %} <span class="badge badge--closed">Kapalı 🔒</span>{% endif %}</h1>
   {% if poll.description %}<p class="poll-detail__description">{{ poll.description }}</p>{% endif %}
   <p class="poll-card__meta">
     <span>@{{ poll.author.username }}</span> ·
     <span>{{ poll.created_at|timesince }} önce</span>
   </p>
+
+  {% if poll.closes_at and not poll.is_finished %}
+    <p class="countdown" data-closes-at="{{ poll.closes_at|date:'c' }}">
+      ⏳ Kalan süre: <strong data-countdown>{{ poll.closes_at|timeuntil }}</strong>
+      <span class="countdown__date">(kapanış: {{ poll.closes_at|date:"d.m.Y H:i" }})</span>
+    </p>
+  {% elif poll.has_expired and not poll.is_closed %}
+    <p class="countdown countdown--over">⌛ Süre doldu, anket kapandı.</p>
+  {% endif %}
 
   {% if show_results %}
     {% include "polls/partials/_results.html" %}
@@ -38,7 +47,7 @@
 
   {% if is_author %}
     <div class="owner-actions">
-      {% if not poll.is_closed %}
+      {% if not poll.is_finished %}
         <form method="post" action="{% url 'poll_close' poll.pk %}">
           {% csrf_token %}
           <button type="submit" class="btn btn--ghost btn--small">Anketi kapat</button>

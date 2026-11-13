@@ -58,7 +58,7 @@ def voted_poll_ids(poll_ids, user, voter_token):
 
 def cast_vote(poll, option_id, user, voter_token):
     """Record a vote or raise a VoteError subclass."""
-    if poll.is_closed:
+    if poll.is_finished:
         raise PollClosed()
     try:
         option_pk = int(option_id)

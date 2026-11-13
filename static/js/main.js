@@ -245,6 +245,40 @@
     });
   }
 
+  /* ---- Countdown to the poll's closing time --------------------------- */
+  function formatRemaining(ms) {
+    const total = Math.max(0, Math.floor(ms / 1000));
+    const days = Math.floor(total / 86400);
+    const hours = Math.floor((total % 86400) / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const seconds = total % 60;
+    if (days > 0) return days + " gün " + hours + " sa";
+    if (hours > 0) return hours + " sa " + minutes + " dk";
+    if (minutes > 0) return minutes + " dk " + String(seconds).padStart(2, "0") + " sn";
+    return seconds + " sn";
+  }
+
+  function initCountdown() {
+    const box = $(".countdown[data-closes-at]");
+    const target = box && $("[data-countdown]", box);
+    if (!box || !target) return;
+    const closesAt = Date.parse(box.dataset.closesAt);
+    if (Number.isNaN(closesAt)) return;
+
+    const timer = setInterval(() => {
+      const left = closesAt - Date.now();
+      if (left <= 0) {
+        clearInterval(timer);
+        target.textContent = "0 sn";
+        // The server decides what a finished poll looks like: reload to show results.
+        setTimeout(() => window.location.reload(), 1200);
+        return;
+      }
+      target.textContent = formatRemaining(left);
+    }, 1000);
+    target.textContent = formatRemaining(closesAt - Date.now());
+  }
+
   /* ---- 6. Mobile menu --------------------------------------------------- */
   function initMenu() {
     const toggle = $(".navbar__toggle");
@@ -271,6 +305,7 @@
     initPollForm();
     initVoteForm();
     initCopyLink();
+    initCountdown();
     animateBars(document);
   });
 })();
