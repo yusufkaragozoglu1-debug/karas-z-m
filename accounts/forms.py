@@ -17,6 +17,13 @@ class SignupForm(forms.ModelForm):
         widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
     )
 
+    # Honeypot: hidden from people, filled in by naive bots.
+    website = forms.CharField(
+        required=False,
+        label="Web sitesi",
+        widget=forms.TextInput(attrs={"tabindex": "-1", "autocomplete": "off"}),
+    )
+
     class Meta:
         model = User
         fields = ("username", "email")
@@ -30,6 +37,11 @@ class SignupForm(forms.ModelForm):
             "username": {"max_length": "Kullanıcı adı en fazla 20 karakter olabilir."},
             "email": {"invalid": "Geçerli bir e-posta adresi gir."},
         }
+
+    def clean_website(self):
+        if self.cleaned_data.get("website"):
+            raise forms.ValidationError("Bir hata oluştu, lütfen tekrar dene.")
+        return ""
 
     def clean_username(self):
         username = self.cleaned_data["username"].strip()

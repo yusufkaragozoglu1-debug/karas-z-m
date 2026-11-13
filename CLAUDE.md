@@ -26,6 +26,7 @@ python manage.py test polls.tests.test_voting.JsonVoteTests.test_success_payload
 - **N+1 yasağı**: liste/anketlerim `Poll` sorgusunu `_annotated_polls()` ile paylaşır; sayfadaki "oy verdin" bilgisi tek sorguyla gelir. `assertNumQueries` benzeri testler (anket sayısı artınca sorgu sayısı sabit) var — yeni sorgu eklerken bozma.
 - **Kullanıcı**: `accounts.User` e-posta ile girer (`USERNAME_FIELD="email"`), e-posta `save()` ve manager'da küçük harfe çevrilir, kullanıcı adı `Lower("username")` kısıtıyla iexact benzersizdir. E-posta hiçbir şablonda/JSON'da gösterilmez (testle korunuyor).
 - **Ayarlar** (`config/settings.py`): `.env` sonra `.env.local` yüklenir; `DATABASE_URL` yoksa SQLite, varsa Postgres (`CONN_MAX_AGE=0`, server-side cursor kapalı, `sslmode=require`). Üretim güvenlik ayarları `DEBUG=False` iken devreye girer; `VOTER_COOKIE_SECURE = not DEBUG`.
+- **Rate limit** (`config/ratelimit.py`): `@rate_limit(name, limit, window, by="ip"|"user")` dekoratörü kayıt/giriş/oy/anket oluşturmada; sabit pencere, sayaçlar Django cache'inde (üretimde `DatabaseCache` → `django_cache` tablosu, DEBUG/test'te locmem). Cache hata verirse isteği engellemez. `RATELIMIT_ENABLED` testlerde kapalıdır; açmak için `@override_settings(RATELIMIT_ENABLED=True)` (bkz. `accounts/tests/test_ratelimit.py`). Kayıt formunda gizli `website` honeypot alanı var.
 - **Frontend**: tek `static/css/main.css` ve `static/js/main.js`, framework yok. JS yalnızca ilerleyen geliştirme (Aşama 5); JS kapalıyken her akış çalışmalı. Metinler `textContent` ile basılır.
 - Python yerelde 3.15, Vercel'de 3.12 hedefleniyor; her iki sürümde çalışan bağımlılıklar seç.
 - Git deposunun kökü proje değil `C:\Users\ASUS` (ana dizin): commit atarken yalnızca `Kararsizim` klasörünü stage'le (`git add .` bu klasörde).
@@ -46,7 +47,7 @@ python manage.py test polls.tests.test_voting.JsonVoteTests.test_success_payload
 - Kod, değişken ve fonksiyon adları İngilizce; arayüz metinleri, URL'ler ve hata mesajları Türkçe.
 
 ## 3. Kapsam dışı (prototip)
-E-posta doğrulama, parola sıfırlama, bitiş süresi, kategori, filtre, rate limit, captcha, karanlık mod, OG görseli. (Bölüm 12.)
+E-posta doğrulama, parola sıfırlama, bitiş süresi, kategori, filtre, captcha, karanlık mod, OG görseli. (Bölüm 12.) Rate limit ve kayıt honeypot'u sonradan eklendi.
 
 ## 4. Klasör yapısı
 ```
@@ -137,7 +138,7 @@ Vercel Django zero-config (manage.py kökte, WSGI_APPLICATION doğru, STATIC_ROO
 Django `TestCase`; her aşamada `makemigrations`, `migrate`, `check`, `test` temiz. Liste/detay/anketlerim için `assertNumQueries` (N+1 yok). Gizlilik testi: e-posta yanıtlarda yok.
 
 ## 12. Sonraki adımlar (prototip sonrası)
-Bitiş süresi + geri sayım, liste filtreleri (yeni/popüler/kapanmak üzere), rate limit + captcha, e-posta doğrulama + parola sıfırlama, kategoriler, Open Graph önizleme, karanlık mod.
+Bitiş süresi + geri sayım, liste filtreleri (yeni/popüler/kapanmak üzere), captcha, e-posta doğrulama + parola sıfırlama, kategoriler, Open Graph önizleme, karanlık mod.
 
 ## 13. Aşama durumu
 - [x] Aşama 1 — İskelet, ayarlar, User, temel şablon

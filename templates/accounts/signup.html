@@ -9,7 +9,13 @@
     {% csrf_token %}
     {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
     {% for error in form.non_field_errors %}<p class="field__error" role="alert">{{ error }}</p>{% endfor %}
-    {% for field in form %}{% include "partials/_form_field.html" %}{% endfor %}
+    {% for field in form %}
+      {% if field.name == "website" %}
+        <div class="hp" aria-hidden="true"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</div>
+      {% else %}
+        {% include "partials/_form_field.html" %}
+      {% endif %}
+    {% endfor %}
     <button type="submit" class="btn btn--primary btn--block">Kayıt ol</button>
   </form>
   <p class="auth__alt">Zaten üye misin? <a href="{% url 'login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Giriş yap</a></p>

@@ -110,6 +110,9 @@ main:focus { outline: none; }
   .js .navbar__links.is-open { display: flex; }
 }
 
+/* Honeypot field: off-screen, not display:none (bots skip display:none less often) */
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
 /* ---- Cards ------------------------------------------------------------- */
 .card {
   background: var(--surface);

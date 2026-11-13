@@ -84,6 +84,16 @@ Django tabloları `public` şemasındadır ve Supabase'in Data API'si (PostgREST
 
   **Yeni migration yeni tablo getirirse betiği tekrar çalıştır.**
 
+## Rate limit
+
+Kayıt (saatte 5), giriş (10 dakikada 10), oy (10 dakikada 60) ve anket oluşturma (saatte 10, kullanıcı başına) sınırlıdır; aşımda `429` döner. Sayaçlar üretimde veritabanı cache tablosunda (`django_cache`) tutulur, yerelde bellekte. Tabloyu bir kez oluştur:
+
+```powershell
+python manage.py createcachetable
+```
+
+(Supabase'de tablo oluşturulmuştur; RLS açıktır. Başka bir veritabanında deploy edersen komutu çalıştırıp RLS betiğini tekrar çalıştır.) Cache erişilemezse istekler engellenmez ("fail open").
+
 ## Vercel'e deploy
 
 Vercel, Django'yu otomatik algılar (`manage.py` kökte, `WSGI_APPLICATION = config.wsgi.application`). Python sürümü [.python-version](.python-version) ile 3.12'ye sabitlenmiştir. `vercel.json` gerekmez; statik dosyalar WhiteNoise ile sunulur (`collectstatic` çalışmasa bile `static/` klasöründen servis edilir).
@@ -118,7 +128,8 @@ Geriye kalan iki uyarı bilerek bırakıldı:
 ## Bilinen sınırlamalar
 
 - Ziyaretçi oyları tarayıcı çerezine bağlıdır; çerez silinirse (veya gizli pencerede) tekrar oy verilebilir.
-- Kayıt formu, "bu e-posta ile zaten bir hesap var" diyerek e-postanın kayıtlı olup olmadığını belli eder (kullanıcı listeleme/enumeration mümkün). Rate limit yok.
+- Kayıt formu, "bu e-posta ile zaten bir hesap var" diyerek e-postanın kayıtlı olup olmadığını belli eder (kullanıcı listeleme/enumeration mümkün).
+- Rate limit sabit pencerelidir ve sayaçlar atomik değildir (aynı anda gelen çok sayıda istek limiti birkaç adet aşabilir). Captcha yoktur; yalnızca kayıt formunda gizli bir honeypot alanı vardır.
 - E-posta doğrulaması ve "parolamı unuttum" akışı yok.
 - Aynı ankette seçenek tekrarı ve 2–5 seçenek sınırı form katmanında denetlenir, veritabanı kısıtı değildir.
 - Yönetici paneli varsayılan `/admin/` adresindedir.
@@ -127,7 +138,7 @@ Geriye kalan iki uyarı bilerek bırakıldı:
 
 ## Sonraki adımlar (öncelik sırasıyla)
 
-1. Rate limit ve basit captcha (kayıt, giriş ve oylama için spam koruması).
+1. Captcha (Cloudflare Turnstile veya hCaptcha) ve proxy arkasında IP doğrulamasının güçlendirilmesi.
 2. E-posta doğrulama ve parola sıfırlama.
 3. Anket bitiş süresi ve geri sayım.
 4. Liste filtreleri: en yeni / en popüler / kapanmak üzere.

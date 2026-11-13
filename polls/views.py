@@ -6,6 +6,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from config.ratelimit import rate_limit
+
 from . import services, voter
 from .forms import PollCreateForm
 from .models import Poll
@@ -48,6 +50,7 @@ def poll_detail(request, pk):
 
 
 @login_required
+@rate_limit("poll_create", limit=10, window=3600, by="user")
 def poll_create(request):
     if request.method == "POST":
         form = PollCreateForm(request.POST)
@@ -65,6 +68,7 @@ def _wants_json(request):
 
 
 @require_POST
+@rate_limit("vote", limit=60, window=600)
 def poll_vote(request, pk):
     poll = get_object_or_404(Poll, pk=pk)
     token = voter.get_voter_token(request)

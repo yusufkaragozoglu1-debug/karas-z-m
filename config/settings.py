@@ -104,6 +104,22 @@ else:
         }
     }
 
+# Cache: per-process memory locally and in tests; the database cache in production so
+# rate-limit counters are shared between serverless instances
+# (create its table once with `python manage.py createcachetable`).
+if DEBUG or "test" in sys.argv[1:2]:
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "django_cache",
+        }
+    }
+
+# Off while running the test suite (tests enable it explicitly where they need it).
+RATELIMIT_ENABLED = env_bool("RATELIMIT_ENABLED", True) and "test" not in sys.argv[1:2]
+
 AUTH_USER_MODEL = "accounts.User"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "poll_list"

@@ -2,8 +2,11 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect, resolve_url
+from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import FormView
+
+from config.ratelimit import rate_limit
 
 from .forms import LoginForm, SignupForm
 
@@ -18,6 +21,7 @@ def safe_next_url(request):
     return ""
 
 
+@method_decorator(rate_limit("signup", limit=5, window=3600), name="dispatch")
 class SignupView(FormView):
     template_name = "accounts/signup.html"
     form_class = SignupForm
@@ -39,6 +43,7 @@ class SignupView(FormView):
         return redirect(safe_next_url(self.request) or resolve_url("poll_list"))
 
 
+@method_decorator(rate_limit("login", limit=10, window=600), name="dispatch")
 class SiteLoginView(LoginView):
     template_name = "accounts/login.html"
     authentication_form = LoginForm

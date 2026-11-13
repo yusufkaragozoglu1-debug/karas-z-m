@@ -139,6 +139,12 @@
           throw new Error("unexpected response");
         }
         const data = await response.json();
+        if (response.status === 429) {
+          // Rate limited: tell the user and let them retry later, no form fallback.
+          showToast(data.message, "error");
+          if (button) button.disabled = false;
+          return;
+        }
         if (!data.ok) throw new Error("rejected");
 
         const results = buildResults(data);
