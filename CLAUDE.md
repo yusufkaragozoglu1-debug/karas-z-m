@@ -16,7 +16,7 @@ python manage.py test                            # tümü
 python manage.py test polls.tests.test_voting.JsonVoteTests.test_success_payload   # tek test
 ```
 
-`manage.py test` `DATABASE_URL` tanımlı olsa bile SQLite test veritabanı kullanır (settings.py'de korunuyor); diğer komutlar `.env.local`'deki canlı Supabase veritabanına bağlanır. Lint/format aracı yapılandırılmamış. `DJANGO_DEBUG` varsayılanı `False` (ve `DJANGO_SECRET_KEY` zorunlu); yerel `.env` (git'e girmez) `DJANGO_DEBUG=True` içerir. Testler sırasında "staticfiles dizini yok" uyarısı zararsızdır.
+`python scripts/run_prodlike.py` siteyi DEBUG=False + Transaction pooler (6543) ile `http://localhost:8000`'de çalıştırır (`.env.local`'in yorum satırı Vercel değerlerini okur). `manage.py test` `DATABASE_URL` tanımlı olsa bile SQLite test veritabanı kullanır (settings.py'de korunuyor); diğer komutlar `.env.local`'deki canlı Supabase veritabanına bağlanır. Lint/format aracı yapılandırılmamış. `DJANGO_DEBUG` varsayılanı `False` (ve `DJANGO_SECRET_KEY` zorunlu); yerel `.env` (git'e girmez) `DJANGO_DEBUG=True` içerir. Testler sırasında "staticfiles dizini yok" uyarısı zararsızdır.
 
 ## Mimari (birden çok dosyayı okumayı gerektiren noktalar)
 
@@ -29,7 +29,7 @@ python manage.py test polls.tests.test_voting.JsonVoteTests.test_success_payload
 - **Rate limit** (`config/ratelimit.py`): `@rate_limit(name, limit, window, by="ip"|"user")` dekoratörü kayıt/giriş/oy/anket oluşturmada; sabit pencere, sayaçlar Django cache'inde (üretimde `DatabaseCache` → `django_cache` tablosu, DEBUG/test'te locmem). Cache hata verirse isteği engellemez. `RATELIMIT_ENABLED` testlerde kapalıdır; açmak için `@override_settings(RATELIMIT_ENABLED=True)` (bkz. `accounts/tests/test_ratelimit.py`). Kayıt formunda gizli `website` honeypot alanı var.
 - **Frontend**: tek `static/css/main.css` ve `static/js/main.js`, framework yok. JS yalnızca ilerleyen geliştirme (Aşama 5); JS kapalıyken her akış çalışmalı. Metinler `textContent` ile basılır.
 - Python yerelde 3.15, Vercel'de 3.12 hedefleniyor; her iki sürümde çalışan bağımlılıklar seç.
-- Git deposunun kökü proje değil `C:\Users\ASUS` (ana dizin): commit atarken yalnızca `Kararsizim` klasörünü stage'le (`git add .` bu klasörde).
+- Git: proje klasörünün **kendi** deposu var (`origin` = https://github.com/yusufkaragozoglu1-debug/karas-z-m, dal `main`). `.claude/` klasörü bilerek takipsiz/commit dışı bırakılır (yerel önizleme ayarı). Ana dizindeki (`C:\Users\ASUS`) eski depo ayrı bir şeydir ve `MyTestProject` uzak deposuna bağlıdır; ona dokunma.
 
 ---
 
@@ -148,3 +148,26 @@ Liste filtreleri (yeni/popüler/kapanmak üzere), captcha, e-posta doğrulama + 
 - [x] Aşama 5 — Arayüz cilası ve JS
 - [x] Aşama 6 (kod/dokümantasyon tarafı; Supabase + Vercel hesap adımları kullanıcıda) — Supabase + Vercel deploy
 - [x] Aşama 7 — Son kontrol ve temizlik
+
+## 14. Güncel durum ve devam notları (yeni oturum buradan başlasın)
+
+_Son güncelleme: 2026-11-13. Son commit'ler `main` dalında GitHub'a gönderildi._
+
+**Bitenler:** Aşama 1–7 (bölüm 13) + sonradan eklenenler: spam koruması (rate limit + kayıt honeypot'u, `config/ratelimit.py`), yazarın kendi anketine oy verebilmesi, anket bitiş süresi + canlı geri sayım (`Poll.closes_at`, `is_finished`), `scripts/run_prodlike.py`. 125 test geçiyor (`python manage.py test`).
+
+**Altyapı (hazır, gizli değerler dosyada):**
+- Supabase projesi `kararsizim`, ref `xwzxrbnwmrjbidathhlo`, bölge Frankfurt (eu-central-1). Havuz adresi `aws-1-eu-central-1.pooler.supabase.com` (`aws-0` bu projede çalışmaz). Kullanıcı `postgres.<ref>`. Session pooler 5432 (migration/yerel), Transaction pooler 6543 (Vercel).
+- Tablolar kurulu (migration 0001 + `polls.0002_poll_closes_at` uygulandı), `django_cache` tablosu elle oluşturuldu (rate limit için), **tüm public tablolarda RLS açık**, Security Advisor temiz (yalnızca "RLS açık, politika yok" INFO notları — bilinçli). Yeni migration yeni tablo getirirse `scripts/supabase_enable_rls.sql` tekrar çalıştırılmalı.
+- Veritabanları şu an **boş**: Supabase'de 0 kullanıcı/anket/oy; yerel `db.sqlite3` de boş. Yönetici hesabı (`createsuperuser`) açılmadı.
+- Gizli değerler **yalnızca git'e girmeyen `.env.local`** içinde: aktif `DATABASE_URL` (5432) ve yorum satırı olarak Vercel için hazırlanmış `DATABASE_URL` (6543) + `DJANGO_SECRET_KEY`. Parola sohbette göründü ve zayıf → **canlıdan önce Supabase panelinde değiştirilmeli**; değişince `.env.local`'deki iki adres ve Vercel'deki değer güncellenmeli (parolada `ı` gibi karakterler URL'de yüzde-kodlanmalı).
+- `python scripts/run_prodlike.py` siteyi DEBUG=False + 6543 ile `http://localhost:8000`'de çalıştırır; denendi: sayfalar, statik dosyalar, 404, güvenlik başlıkları, CSRF çerezi sorunsuz. (`localhost` kullan, `127.0.0.1` değil; Safari'de Secure çerez sorunu olabilir.)
+
+**Sıradaki iş: Vercel deploy (HİÇ YAPILMADI).**
+- Vercel MCP bağlantısı ekip `team_ufK1mqjQHGZZVVmNeEG3AA8U` (`yusufkaragozoglu1-9763`) için iki onaya rağmen 403 verdi; projeyi otomatik oluşturamadık. Önce `list_projects` ile tekrar denenebilir; olmazsa kullanıcıyla panelden ilerle.
+- Adımlar: https://vercel.com/new → `yusufkaragozoglu1-debug/karas-z-m` içe aktar (Django otomatik algılanır, `vercel.json` yok, Python 3.12 `.python-version` ile) → Environment Variables (Production): `DJANGO_SECRET_KEY` ve `DATABASE_URL` (6543) değerlerini `.env.local`'deki yorum satırlarından al; `DJANGO_DEBUG` ekleme veya `False` → Deploy.
+- Deploy sonrası kontrol: sayfa açılıyor mu, **CSS/JS canlıda yükleniyor mu** (statik dosya ayarı `WHITENOISE_USE_FINDERS` ile canlıda henüz doğrulanmadı), kayıt/giriş/anket/oy (gizli pencereden de), süreli anket, rate limit 429, Vercel loglarında hata. `ALLOWED_HOSTS` `.vercel.app`'i otomatik içerir; özel alan adı için `ALLOWED_HOSTS` + `CSRF_TRUSTED_ORIGINS` env'i gerekir.
+- Canlı için yönetici hesabı: yerelden (`.env.local` 5432 ile) `python manage.py createsuperuser`.
+
+**Sonra (öncelik sırası, README "Sonraki adımlar"):** liste filtreleri (en yeni/en popüler/kapanmak üzere), süreyi sonradan uzatma, captcha (Turnstile anahtarı gerekir), e-posta doğrulama + parola sıfırlama (e-posta servisi gerekir), kategoriler/OG görseli/karanlık mod.
+
+**Kullanıcı tercihleri:** Türkçe konuş. Soru sormadan, makul varsayımla ilerle ve varsayımı belirt. "faz N" demesi belirsiz: şimdiye dek sıradaki işi kastetti. Commit/push'u açıkça isteyince yap (commit'ten önce staged diff'te parola/anahtar taraması yap). Canlı hesaplarda (Supabase/Vercel) kalıcı değişiklik yapmadan önce onay al.

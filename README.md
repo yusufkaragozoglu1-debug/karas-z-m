@@ -25,6 +25,16 @@ python manage.py runserver
 
 Uygulama: http://127.0.0.1:8000 — Admin: http://127.0.0.1:8000/admin/
 
+## Üretim benzeri yerel çalıştırma (DEBUG=False)
+
+Deploy'dan önce siteyi üretim ayarlarıyla denemek için:
+
+```powershell
+python scripts/run_prodlike.py
+```
+
+Bu betik `DJANGO_DEBUG=False` zorlar, `.env.local` içindeki **yorum satırı** `DJANGO_SECRET_KEY` ve Transaction pooler (6543) `DATABASE_URL` değerlerini kullanır, `http://localhost:8000` adresinde düz http'ye izin verir. Gerçek veritabanına bağlanır. `.env` içinde `DJANGO_DEBUG` değiştirmek yetmez: `.env.local` onu ezer. (Tarayıcı olarak Chrome/Firefox/Edge kullan; Secure çerezler yalnızca `localhost` üzerinde http'de çalışır, Safari'de giriş yapılamayabilir.)
+
 ## Testler
 
 ```powershell
